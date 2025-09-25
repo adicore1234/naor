@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MakeFlow AI</title>
+    <title>NA AUTOMATE | אוטומציה חכמה לעסקים</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Rubik:wght@400;500;700&display=swap"
       rel="stylesheet"
@@ -11,81 +11,426 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <nav class="navbar" aria-label="ניווט ראשי">
-        <a class="brand" href="#" aria-label="MakeFlow AI">
-          <span class="brand-icon">מ</span>
-          <span class="brand-text">MakeFlow AI</span>
-        </a>
-        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-menu">
-          <span class="nav-toggle-line"></span>
-          <span class="nav-toggle-line"></span>
-          <span class="nav-toggle-line"></span>
-          <span class="sr-only">תפריט</span>
-        </button>
-        <div class="nav-links" id="primary-menu">
-          <a href="#solutions">פתרונות</a>
-          <a href="#platform">הפלטפורמה</a>
-          <a href="#pricing">תמחור</a>
-          <a href="#resources">משאבים</a>
-        </div>
-        <div class="nav-cta">
-          <a class="btn btn-secondary" href="#demo">שיחת ייעוץ</a>
-          <a class="btn btn-primary" href="#start">התחילו עכשיו</a>
-        </div>
-      </nav>
-      <section class="hero">
-        <div class="hero-content">
-          <p class="hero-badge">חדש ב-2025</p>
-          <h1>
-            אוטומציה חכמה שמקפיצה את צוותי ה-AI שלך קדימה
-          </h1>
-          <p class="hero-subtitle">
-            חברו בין מערכות, סוכנים אוטונומיים ונתונים בזמן אמת דרך פלטפורמה אחת שדואגת שכל תהליך יעבוד חלק – מהרעיון ועד למסירה.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#start">התחילו מסלול חינמי</a>
-            <a class="btn btn-link" href="#tour">צפו בסיור חכם</a>
-          </div>
-          <div class="hero-highlight">
-            <span class="highlight-title">96%</span>
-            <p>מפתחים מדווחים על חיסכון של מעל 40 שעות בחודש לאחר שבוע הטמעה אחד בלבד.</p>
-          </div>
-        </div>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="visual-card">
-            <div class="visual-card-header">
-              <span class="status-dot"></span>
-              <span class="status-text">זרימת אוטומציה חיה</span>
+    <div class="page-shell">
+      <header class="site-header" data-scrolled="false">
+        <nav class="navbar" aria-label="ניווט ראשי" data-open="false">
+          <a class="brand" href="#home" aria-label="NA AUTOMATE">
+            <span class="brand-icon">NA</span>
+            <span class="brand-text">NA AUTOMATE</span>
+          </a>
+          <button
+            class="nav-toggle"
+            aria-expanded="false"
+            aria-controls="primary-menu"
+            type="button"
+          >
+            <span class="nav-toggle-line"></span>
+            <span class="nav-toggle-line"></span>
+            <span class="nav-toggle-line"></span>
+            <span class="sr-only">פתיחת תפריט</span>
+          </button>
+          <div class="nav-cluster" id="primary-menu">
+            <div class="nav-links">
+              <a href="#solutions">פתרונות</a>
+              <a href="#platform">הפלטפורמה</a>
+              <a href="#workflow">תהליך</a>
+              <a href="#pricing">תמחור</a>
+              <a href="#resources">משאבים</a>
             </div>
-            <div class="visual-card-body">
-              <div class="visual-node primary">
-                <span class="node-title">Agent Hub</span>
-                <span class="node-subtitle">בקרה מרכזית</span>
-              </div>
-              <div class="visual-connector"></div>
-              <div class="visual-node secondary">
-                <span class="node-title">אינטגרציות</span>
-                <span class="node-subtitle">+26 מקורות</span>
-              </div>
-              <div class="visual-connector"></div>
-              <div class="visual-node tertiary">
-                <span class="node-title">מדדים</span>
-                <span class="node-subtitle">דשבורד בזמן אמת</span>
-              </div>
+            <div class="nav-cta">
+              <a class="btn btn-secondary" href="#demo">שיחת ייעוץ</a>
+              <a class="btn btn-primary" href="#start">התחילו עכשיו</a>
             </div>
           </div>
-          <div class="floating-card floating-card--one">
-            <h3>תהליך מוכן</h3>
-            <p>חיבור מיידי ל-CRM, Slack ומערכות BI בשלושה קליקים.</p>
+        </nav>
+        <section class="hero" id="home">
+          <div class="hero-content reveal">
+            <p class="hero-badge">NA AUTOMATE • הדור הבא</p>
+            <h1>פלטפורמת האוטומציה שמאפשרת לצוותים שלכם לרוץ מהר יותר.</h1>
+            <p class="hero-subtitle">
+              חברו בין מערכות ליבה, מודלי AI וסוכנים אוטונומיים בקליק, צרו זרימות
+              עבודה חכמות עם בקרה מלאה והוציאו לפועל פרויקטים תוך ימים במקום
+              חודשים.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" id="start" href="#demo">בקשו הדגמה</a>
+              <a class="btn btn-link" href="#tour">ראו איך זה עובד</a>
+            </div>
+            <dl class="hero-metrics">
+              <div>
+                <dt>92%</dt>
+                <dd>הפחתת עבודה ידנית כבר בשבוע הראשון</dd>
+              </div>
+              <div>
+                <dt>45+</dt>
+                <dd>חיבורים מוכנים למערכות המובילות בשוק</dd>
+              </div>
+              <div>
+                <dt>24/7</dt>
+                <dd>מעקב חכם והתרעות בזמן אמת</dd>
+              </div>
+            </dl>
           </div>
-          <div class="floating-card floating-card--two">
-            <h3>AI Studio</h3>
-            <p>גררו ושחררו משימות מורכבות, עם פיקוח אנושי מובנה.</p>
+          <div class="hero-visual reveal" aria-hidden="true">
+            <div class="visual-flow">
+              <div class="flow-card flow-card--main">
+                <header>
+                  <span class="status-dot"></span>
+                  <span>לוח שליטה אוטונומי</span>
+                </header>
+                <div class="flow-body">
+                  <div>
+                    <strong>NA Orchestrator</strong>
+                    <p>ניהול כלל הסוכנים האוטומטיים מתוך מסך אחד.</p>
+                  </div>
+                  <ul>
+                    <li>סנכרון דו-כיווני עם CRM</li>
+                    <li>יצירת דוחות מותאמים אישית</li>
+                    <li>הפעלה מבוססת טריגרים</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="flow-nodes">
+                <article class="flow-node">
+                  <h3>Agent Studio</h3>
+                  <p>בניית סוכנים מותאמים לתהליכים שלכם ללא קוד.</p>
+                </article>
+                <article class="flow-node">
+                  <h3>Data Mesh</h3>
+                  <p>איחוד מקורות מידע ומדיניות הרשאות אחידה.</p>
+                </article>
+                <article class="flow-node">
+                  <h3>Pulse Monitor</h3>
+                  <p>ניטור אירועים בזמן אמת ודוחות תפעוליים.</p>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+      </header>
+
+      <main>
+        <section class="trust-bar reveal" aria-label="חברות שעובדות עם NA AUTOMATE">
+          <p>הצטרפו לצוותים המובילים שבחרו ב-NA AUTOMATE</p>
+          <div class="trust-logos">
+            <span>WeFix</span>
+            <span>SquareLabs</span>
+            <span>Cosmic BI</span>
+            <span>UrbanX</span>
+            <span>BluePulse</span>
+          </div>
+        </section>
+
+        <section class="section solutions" id="solutions">
+          <div class="section-heading reveal">
+            <p class="eyebrow">מה מקבלים</p>
+            <h2>פתרונות מקצה לקצה לאוטומציה חכמה</h2>
+            <p>
+              בין אם מדובר בצוות מוצר, תפעול או תמיכה – NA AUTOMATE מייצרת חוויית
+              עבודה אחת, רציפה ובטוחה.
+            </p>
+          </div>
+          <div class="cards-grid">
+            <article class="feature-card reveal">
+              <div class="icon-bubble" aria-hidden="true">⚙️</div>
+              <h3>אוטומציה בין-מערכתית</h3>
+              <p>
+                חיבורים מהירים לכלי CRM, ERP, מערכות BI ומוצרי SaaS מובילים עם
+                ניהול הרשאות מרכזי.
+              </p>
+              <ul>
+                <li>45+ אינטגרציות מוכנות</li>
+                <li>API פתוח להרחבות</li>
+                <li>סנכרון דו-כיווני בזמן אמת</li>
+              </ul>
+            </article>
+            <article class="feature-card reveal">
+              <div class="icon-bubble" aria-hidden="true">🧠</div>
+              <h3>סוכני AI מנוהלים</h3>
+              <p>
+                הגדירו תרחישים עם שילוב מודלי שפה, עיבוד תמונה וקבלת החלטות על
+                בסיס מדיניות ארגונית.
+              </p>
+              <ul>
+                <li>תבניות מוכנות לפי תעשייה</li>
+                <li>פיקוח אנושי מובנה</li>
+                <li>עקיבות מלאה לכל פעולה</li>
+              </ul>
+            </article>
+            <article class="feature-card reveal">
+              <div class="icon-bubble" aria-hidden="true">📈</div>
+              <h3>בקרה ומדידה</h3>
+              <p>
+                לוחות מחוונים אינטראקטיביים עם התראות חכמות, מדדי ביצועים וניתוח
+                צווארי בקבוק בתהליך.
+              </p>
+              <ul>
+                <li>מדדי SLA מותאמים</li>
+                <li>התראות Slack / Teams</li>
+                <li>תיעוד אוטומטי לכל שינוי</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="section platform" id="platform">
+          <div class="section-heading reveal">
+            <p class="eyebrow">הפלטפורמה</p>
+            <h2>תשתית אחת שמחברת בין אנשים, נתונים וסוכנים</h2>
+            <p>
+              ארכיטקטורה מודרנית מבוססת מיקרו-שירותים עם אבטחת מידע ברמה
+              ארגונית, מוכנה לצמיחה מהירה.
+            </p>
+          </div>
+          <div class="platform-grid">
+            <article class="platform-card reveal">
+              <h3>Automation Canvas</h3>
+              <p>
+                ממשק גרירה ושחרור חכם שמאפשר לבנות תהליכים מורכבים תוך דקות, עם
+                תצוגות מותאמות לכל צוות.
+              </p>
+            </article>
+            <article class="platform-card reveal">
+              <h3>Policy Engine</h3>
+              <p>
+                ניהול הרשאות דינמי, ביקורות אוטומטיות ומעקב אחרי תאימות לתקנים
+                כגון ISO ו-GDPR.
+              </p>
+            </article>
+            <article class="platform-card reveal">
+              <h3>Knowledge Sync</h3>
+              <p>
+                חיבור מאגרי ידע ארגוניים עם למידת מסמכים מתקדמת והעשרת נתונים
+                רציפה.
+              </p>
+            </article>
+            <article class="platform-card reveal">
+              <h3>Observability Hub</h3>
+              <p>
+                ניטור ביצועים, דוחות שימוש ולכידת אנומליות בזמן אמת עם המלצות
+                לשיפור.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section workflow" id="workflow">
+          <div class="section-heading reveal">
+            <p class="eyebrow">איך זה עובד</p>
+            <h2>תהליך מהיר, שקוף ומדיד</h2>
+            <p>
+              משלבים את NA AUTOMATE בקלות ומתחילים לראות תוצאות מדידות כבר אחרי
+              ספרינט אחד.
+            </p>
+          </div>
+          <div class="workflow-steps">
+            <article class="step reveal">
+              <span class="step-number">01</span>
+              <div>
+                <h3>מיפוי אתגרים</h3>
+                <p>סדנת התנעה בת 90 דקות לזיהוי תהליכים קריטיים ויעדי הצלחה.</p>
+              </div>
+            </article>
+            <article class="step reveal">
+              <span class="step-number">02</span>
+              <div>
+                <h3>עיצוב זרימות</h3>
+                <p>בניית אב-טיפוס ב-Automation Canvas והגדרת הסוכנים המתאימים.</p>
+              </div>
+            </article>
+            <article class="step reveal">
+              <span class="step-number">03</span>
+              <div>
+                <h3>הטמעה מואצת</h3>
+                <p>חיבור למערכות ליבה, בדיקות עומס ופריסה הדרגתית לצוותים.</p>
+              </div>
+            </article>
+            <article class="step reveal">
+              <span class="step-number">04</span>
+              <div>
+                <h3>מדידה ואופטימיזציה</h3>
+                <p>מעקב אחר מדדי ביצוע, שיפור תרחישים והרחבה ליחידות נוספות.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section testimonial" id="tour">
+          <div class="testimonial-card reveal">
+            <blockquote>
+              "NA AUTOMATE אפשרה לנו להאיץ את זמני ההשקה של פיצ'רים חדשים ב-60%,
+              תוך שיפור איכות הנתונים וההתראות. הצוות שלנו סוף סוף מתמקד ביוזמות
+              אסטרטגיות במקום בעבודה ידנית חוזרת."</blockquote>
+            <footer>
+              <strong>מאיה לוי</strong>
+              <span>VP Operations, UrbanX</span>
+            </footer>
+          </div>
+          <dl class="impact-metrics reveal">
+            <div>
+              <dt>7 ימים</dt>
+              <dd>להטמעת הפיילוט הראשון</dd>
+            </div>
+            <div>
+              <dt>4.8/5</dt>
+              <dd>ציון שביעות רצון משתמשים</dd>
+            </div>
+            <div>
+              <dt>+32%</dt>
+              <dd>שיפור ב-SLA של צוותי התמיכה</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="section pricing" id="pricing">
+          <div class="section-heading reveal">
+            <p class="eyebrow">תמחור שקוף</p>
+            <h2>בחרו את המסלול שמתאים לארגון שלכם</h2>
+            <p>כל התוכניות כוללות אבטחה ארגונית, תמיכה בעברית והדרכות צוות.</p>
+          </div>
+          <div class="pricing-grid">
+            <article class="pricing-card reveal">
+              <h3>Launch</h3>
+              <p class="price">₪3,200<span>/חודש</span></p>
+              <p class="description">מיועד לצוותים קטנים עד 20 משתמשים.</p>
+              <ul>
+                <li>10 זרימות אוטומציה פעילות</li>
+                <li>5 סוכני AI מנוהלים</li>
+                <li>חיבור למערכות CRM ו-Helpdesk</li>
+              </ul>
+              <a class="btn btn-secondary" href="#demo">דברו עם נציג</a>
+            </article>
+            <article class="pricing-card pricing-card--highlight reveal">
+              <div class="badge">הכי פופולרי</div>
+              <h3>Scale</h3>
+              <p class="price">₪6,900<span>/חודש</span></p>
+              <p class="description">לארגונים בצמיחה עם כמה צוותים חוצי חטיבות.</p>
+              <ul>
+                <li>זרימות ללא הגבלה</li>
+                <li>15 סוכני AI מתקדמים</li>
+                <li>Observability Hub מלא ודוחות BI</li>
+                <li>תמיכה בכוננות 24/7</li>
+              </ul>
+              <a class="btn btn-primary" href="#demo">התחילו פיילוט</a>
+            </article>
+            <article class="pricing-card reveal">
+              <h3>Enterprise</h3>
+              <p class="price">בהתאמה</p>
+              <p class="description">פתרון Tailor-Made לארגונים גלובליים.</p>
+              <ul>
+                <li>פריסה היברידית או On-Prem</li>
+                <li>תמיכה במודלים פרטיים</li>
+                <li>הדרכות וליווי מוצרי</li>
+                <li>תחזוקת SLA לפי דרישה</li>
+              </ul>
+              <a class="btn btn-secondary" href="#demo">קבלו הצעת מחיר</a>
+            </article>
+          </div>
+        </section>
+
+        <section class="section resources" id="resources">
+          <div class="section-heading reveal">
+            <p class="eyebrow">משאבים</p>
+            <h2>לימדו איך להוציא יותר מהאוטומציה</h2>
+            <p>
+              ספריית ידע מתעדכנת עם תבניות, מדריכים וסיפורי הצלחה של לקוחות.
+            </p>
+          </div>
+          <div class="resource-grid">
+            <article class="resource-card reveal">
+              <h3>המדריך לסוכני AI בטוחים</h3>
+              <p>צ'ק-ליסט מקיף להטמעה מאובטחת של סוכנים אוטונומיים.</p>
+              <a href="#" aria-label="הורדת המדריך לסוכני AI בטוחים">הורידו PDF</a>
+            </article>
+            <article class="resource-card reveal">
+              <h3>תבניות זרימה לפי תעשייה</h3>
+              <p>סט תהליכים מוכנים לתחומי פיננסים, לוגיסטיקה ושירות.</p>
+              <a href="#" aria-label="צפייה בתבניות זרימה לפי תעשייה">גלו עוד</a>
+            </article>
+            <article class="resource-card reveal">
+              <h3>Webinar: אוטומציה מונעת נתונים</h3>
+              <p>סדנה מוקלטת עם טיפים למדידת הצלחה בזמן אמת.</p>
+              <a href="#" aria-label="הרשמה ל-Webinar אוטומציה מונעת נתונים">צפו בהקלטה</a>
+            </article>
+          </div>
+        </section>
+
+        <section class="section cta" id="demo">
+          <div class="cta-card reveal">
+            <div>
+              <h2>רוצים לראות את NA AUTOMATE בפעולה?</h2>
+              <p>
+                השאירו פרטים וצוות המומחים שלנו יתאם איתכם הדגמה מותאמת לצרכים
+                שלכם, כולל תכנון תהליך ראשוני ללא עלות.
+              </p>
+            </div>
+            <form class="cta-form">
+              <label>
+                <span>שם מלא</span>
+                <input type="text" name="name" placeholder="שרה כהן" />
+              </label>
+              <label>
+                <span>אימייל ארגוני</span>
+                <input type="email" name="email" placeholder="you@company.com" />
+              </label>
+              <label>
+                <span>תחום עניין</span>
+                <select name="focus">
+                  <option>אוטומציה לצוות תמיכה</option>
+                  <option>שילוב AI בפרויקטים</option>
+                  <option>שדרוג תהליך מכירות</option>
+                  <option>אחר</option>
+                </select>
+              </label>
+              <button type="submit" class="btn btn-primary">תיאום שיחה</button>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-top">
+          <div>
+            <a class="brand" href="#home" aria-label="NA AUTOMATE">
+              <span class="brand-icon">NA</span>
+              <span class="brand-text">NA AUTOMATE</span>
+            </a>
+            <p>
+              NA AUTOMATE היא פלטפורמת אוטומציה מודרנית שמחברת בין אנשים, נתונים
+              וסוכני AI בצורה מאובטחת, שקופה ואפקטיבית.
+            </p>
+          </div>
+          <div class="footer-links">
+            <div>
+              <h3>מוצר</h3>
+              <a href="#solutions">פתרונות</a>
+              <a href="#platform">יכולות</a>
+              <a href="#pricing">תמחור</a>
+            </div>
+            <div>
+              <h3>חברה</h3>
+              <a href="#resources">בלוג</a>
+              <a href="#tour">סיפורי לקוח</a>
+              <a href="#demo">צור קשר</a>
+            </div>
+            <div>
+              <h3>תמיכה</h3>
+              <a href="#">מרכז עזרה</a>
+              <a href="#">תיעוד API</a>
+              <a href="#">סטטוס מערכת</a>
+            </div>
           </div>
         </div>
-      </section>
-    </header>
+        <div class="footer-bottom">
+          <p>© <span id="year"></span> NA AUTOMATE. כל הזכויות שמורות.</p>
+          <div class="footer-meta">
+            <a href="#">תנאי שימוש</a>
+            <span aria-hidden="true">•</span>
+            <a href="#">מדיניות פרטיות</a>
+          </div>
+        </div>
+      </footer>
+    </div>
 
     <script src="script.js"></script>
   </body>
