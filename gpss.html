@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrackPro - מעקב GPS מתקדם</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Rubik Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            font-family: 'Rubik', sans-serif;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.5); opacity: 0.3; }
+        }
+        
+        .tracking-active {
+            animation: breathe 2s ease-in-out infinite;
+        }
+        
+        @keyframes breathe {
+            0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.8); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .movement-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .accuracy-ring {
+            transition: all 0.5s ease;
+        }
+        
+        .stats-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body class="overflow-hidden h-screen">
+    <!-- Map Container -->
+    <div id="map" class="absolute inset-0"></div>
+    
+    <!-- Top Header -->
+    <div class="absolute top-0 left-0 right-0 z-10 p-4">
+        <div class="stats-card rounded-2xl shadow-xl p-4">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div id="statusIndicator" class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                    <span id="statusText" class="text-sm font-medium text-gray-700">לא מחובר</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i id="movementIcon" class="fas fa-person movement-icon text-2xl text-gray-400"></i>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-500">סוג תנועה</div>
+                        <div id="movementType" class="text-sm font-bold">ממתין...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Location Display -->
+            <div class="bg-gray-50 rounded-xl p-3 mb-3">
+                <div class="flex items-start gap-2 mb-2">
+                    <i class="fas fa-map-marker-alt text-red-500 mt-1"></i>
+                    <div class="flex-1">
+                        <div id="currentAddress" class="text-sm font-medium text-gray-800">מחפש מיקום...</div>
+                        <div id="coordinates" class="text-xs text-gray-500 mt-1"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mt-3">
+                    <div class="text-center">
+                        <div class="text-xs text-gray-500">דיוק</div>
+                        <div id="accuracy" class="text-sm font-bold text-green-600">-- מ'</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs text-gray-500">מהירות</div>
+                        <div id="speed" class="text-sm font-bold text-blue-600">0 קמ"ש</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs text-gray-500">כיוון</div>
+                        <div id="heading" class="text-sm font-bold text-purple-600">--°</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="grid grid-cols-4 gap-2 text-center">
+                <div>
+                    <div class="text-xs text-gray-500">מרחק</div>
+                    <div id="distance" class="text-sm font-bold">0 מ'</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500">זמן</div>
+                    <div id="duration" class="text-sm font-bold">00:00</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500">מהירות ממוצעת</div>
+                    <div id="avgSpeed" class="text-sm font-bold">0 קמ"ש</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500">נקודות</div>
+                    <div id="pointCount" class="text-sm font-bold">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Controls -->
+    <div class="absolute bottom-0 left-0 right-0 z-10 p-4">
+        <div class="stats-card rounded-2xl shadow-xl p-4 slide-up">
+            <!-- Main Control Buttons -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <button id="arriveBtn" class="bg-green-500 text-white py-3 px-6 rounded-xl font-medium shadow-lg hover:bg-green-600 active:scale-95 transition-all">
+                    <i class="fas fa-map-marker-alt mr-2"></i>הגעתי
+                </button>
+                <button id="leaveBtn" class="bg-red-500 text-white py-3 px-6 rounded-xl font-medium shadow-lg hover:bg-red-600 active:scale-95 transition-all">
+                    <i class="fas fa-sign-out-alt mr-2"></i>יצאתי
+                </button>
+            </div>
+            
+            <!-- Tracking Button -->
+            <button id="trackingBtn" class="w-full bg-blue-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-blue-600 active:scale-95 transition-all mb-3">
+                <i class="fas fa-satellite-dish mr-2"></i>התחל מעקב
+            </button>
+            
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-4 gap-2">
+                <button id="centerBtn" class="bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+                <button id="clearBtn" class="bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <button id="saveBtn" class="bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button id="exportBtn" class="bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Modal -->
+    <div id="exportModal" class="hidden fixed inset-0 z-20 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full slide-up">
+            <h3 class="text-xl font-bold mb-4">ייצוא נתונים</h3>
+            <div class="space-y-3">
+                <button id="exportGPX" class="w-full bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition-all">
+                    <i class="fas fa-route mr-2"></i>ייצוא כ-GPX
+                </button>
+                <button id="exportJSON" class="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition-all">
+                    <i class="fas fa-code mr-2"></i>ייצוא כ-GeoJSON
+                </button>
+                <button id="exportCSV" class="w-full bg-purple-500 text-white py-3 rounded-xl hover:bg-purple-600 transition-all">
+                    <i class="fas fa-table mr-2"></i>ייצוא כ-CSV
+                </button>
+                <button id="shareData" class="w-full bg-orange-500 text-white py-3 rounded-xl hover:bg-orange-600 transition-all">
+                    <i class="fas fa-share-alt mr-2"></i>שיתוף
+                </button>
+                <button id="closeModal" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition-all">
+                    ביטול
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // GPS Tracker Class
+        class GPSTracker {
+            constructor() {
+                this.isTracking = false;
+                this.watchId = null;
+                this.currentPosition = null;
+                this.trackPoints = [];
+                this.markers = [];
+                this.polyline = null;
+                this.map = null;
+                this.userMarker = null;
+                this.accuracyCircle = null;
+                this.startTime = null;
+                this.totalDistance = 0;
+                this.lastUpdateTime = Date.now();
+                this.movementHistory = [];
+                this.kalmanFilter = new KalmanFilter();
+                
+                // Movement detection thresholds
+                this.WALKING_SPEED = 7; // km/h
+                this.RUNNING_SPEED = 15; // km/h
+                this.DRIVING_SPEED = 30; // km/h
+                
+                this.initMap();
+                this.initEventListeners();
+                this.checkLocationPermission();
+                this.loadFromStorage();
+            }
+            
+            initMap() {
+                // Initialize Leaflet map
+                this.map = L.map('map', {
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView([31.8821, 34.8194], 13); // Default to Lod
+                
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(this.map);
+                
+                // Add zoom control to bottom right
+                L.control.zoom({
+                    position: 'bottomright'
+                }).addTo(this.map);
+                
+                // Custom user location marker
+                const userIcon = L.divIcon({
+                    html: `<div class="relative">
+                        <div class="absolute -inset-4 bg-blue-500 rounded-full opacity-30 pulse-dot"></div>
+                        <div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>
+                    </div>`,
+                    className: '',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                
+                this.userIcon = userIcon;
+            }
+            
+            initEventListeners() {
+                // Tracking button
+                document.getElementById('trackingBtn').addEventListener('click', () => {
+                    this.toggleTracking();
+                });
+                
+                // Arrive/Leave buttons
+                document.getElementById('arriveBtn').addEventListener('click', () => {
+                    this.markEvent('arrival');
+                });
+                
+                document.getElementById('leaveBtn').addEventListener('click', () => {
+                    this.markEvent('departure');
+                });
+                
+                // Control buttons
+                document.getElementById('centerBtn').addEventListener('click', () => {
+                    this.centerOnUser();
+                });
+                
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    if(confirm('למחוק את כל הנתונים?')) {
+                        this.clearData();
+                    }
+                });
+                
+                document.getElementById('saveBtn').addEventListener('click', () => {
+                    this.saveToStorage();
+                });
+                
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    document.getElementById('exportModal').classList.remove('hidden');
+                });
+                
+                // Export buttons
+                document.getElementById('exportGPX').addEventListener('click', () => {
+                    this.exportGPX();
+                });
+                
+                document.getElementById('exportJSON').addEventListener('click', () => {
+                    this.exportGeoJSON();
+                });
+                
+                document.getElementById('exportCSV').addEventListener('click', () => {
+                    this.exportCSV();
+                });
+                
+                document.getElementById('shareData').addEventListener('click', () => {
+                    this.shareData();
+                });
+                
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    document.getElementById('exportModal').classList.add('hidden');
+                });
+                
+                // Listen for device motion (if available)
+                if (window.DeviceMotionEvent) {
+                    window.addEventListener('devicemotion', (event) => {
+                        this.handleMotion(event);
+                    });
+                }
+            }
+            
+            checkLocationPermission() {
+                if ('permissions' in navigator) {
+                    navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+                        if (result.state === 'granted') {
+                            this.updateStatus('ready', 'מוכן למעקב');
+                        } else if (result.state === 'denied') {
+                            this.updateStatus('error', 'אין הרשאת מיקום');
+                        }
+                    });
+                }
+            }
+            
+            toggleTracking() {
+                if (this.isTracking) {
+                    this.stopTracking();
+                } else {
+                    this.startTracking();
+                }
+            }
+            
+            startTracking() {
+                if (!navigator.geolocation) {
+                    alert('הדפדפן לא תומך ב-GPS');
+                    return;
+                }
+                
+                this.isTracking = true;
+                this.startTime = Date.now();
+                document.getElementById('trackingBtn').innerHTML = '<i class="fas fa-stop mr-2"></i>עצור מעקב';
+                document.getElementById('trackingBtn').classList.add('tracking-active');
+                document.getElementById('trackingBtn').classList.remove('bg-blue-500');
+                document.getElementById('trackingBtn').classList.add('bg-red-500');
+                
+                const options = {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 5000
+                };
+                
+                this.watchId = navigator.geolocation.watchPosition(
+                    (position) => this.handlePosition(position),
+                    (error) => this.handleError(error),
+                    options
+                );
+                
+                this.updateStatus('tracking', 'במעקב פעיל');
+                this.updateTimer();
+            }
+            
+            stopTracking() {
+                if (this.watchId) {
+                    navigator.geolocation.clearWatch(this.watchId);
+                    this.watchId = null;
+                }
+                
+                this.isTracking = false;
+                document.getElementById('trackingBtn').innerHTML = '<i class="fas fa-satellite-dish mr-2"></i>התחל מעקב';
+                document.getElementById('trackingBtn').classList.remove('tracking-active');
+                document.getElementById('trackingBtn').classList.add('bg-blue-500');
+                document.getElementById('trackingBtn').classList.remove('bg-red-500');
+                
+                this.updateStatus('stopped', 'מעקב הופסק');
+            }
+            
+            handlePosition(position) {
+                const coords = position.coords;
+                
+                // Apply Kalman filter for better accuracy
+                const filtered = this.kalmanFilter.filter(coords.latitude, coords.longitude);
+                
+                const point = {
+                    lat: filtered.lat,
+                    lng: filtered.lng,
+                    accuracy: coords.accuracy,
+                    speed: coords.speed || 0,
+                    heading: coords.heading || 0,
+                    altitude: coords.altitude,
+                    timestamp: position.timestamp,
+                    raw: {
+                        lat: coords.latitude,
+                        lng: coords.longitude
+                    }
+                };
+                
+                // Only add point if accuracy is good enough
+                if (coords.accuracy <= 50) { // 50 meters threshold
+                    this.trackPoints.push(point);
+                    this.updateDistance(point);
+                    this.detectMovementType(point);
+                    this.updateMap(point);
+                    this.updateUI(point);
+                    this.reverseGeocode(point);
+                }
+                
+                this.currentPosition = point;
+                this.lastUpdateTime = Date.now();
+            }
+            
+            handleError(error) {
+                console.error('GPS Error:', error);
+                let message = 'שגיאת GPS';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        message = 'אין הרשאת מיקום';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        message = 'מיקום לא זמין';
+                        break;
+                    case error.TIMEOUT:
+                        message = 'תם הזמן הקצוב';
+                        break;
+                }
+                
+                this.updateStatus('error', message);
+            }
+            
+            detectMovementType(point) {
+                const speedKmh = (point.speed || 0) * 3.6;
+                this.movementHistory.push(speedKmh);
+                
+                // Keep last 10 readings
+                if (this.movementHistory.length > 10) {
+                    this.movementHistory.shift();
+                }
+                
+                // Calculate average speed
+                const avgSpeed = this.movementHistory.reduce((a, b) => a + b, 0) / this.movementHistory.length;
+                
+                let movementType = 'עמידה';
+                let icon = 'fa-person';
+                
+                if (avgSpeed < this.WALKING_SPEED) {
+                    if (avgSpeed > 0.5) {
+                        movementType = 'הליכה';
+                        icon = 'fa-person-walking';
+                    }
+                } else if (avgSpeed < this.RUNNING_SPEED) {
+                    movementType = 'ריצה';
+                    icon = 'fa-person-running';
+                } else if (avgSpeed < this.DRIVING_SPEED) {
+                    movementType = 'אופניים';
+                    icon = 'fa-person-biking';
+                } else {
+                    movementType = 'נסיעה';
+                    icon = 'fa-car';
+                }
+                
+                document.getElementById('movementType').textContent = movementType;
+                const iconEl = document.getElementById('movementIcon');
+                iconEl.className = `fas ${icon} movement-icon text-2xl text-blue-500`;
+            }
+            
+            handleMotion(event) {
+                // Use accelerometer data for better movement detection
+                const acc = event.acceleration;
+                if (acc) {
+                    const totalAcc = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+                    // Can be used for more sophisticated movement detection
+                }
+            }
+            
+            updateMap(point) {
+                const latLng = [point.lat, point.lng];
+                
+                // Update user marker
+                if (this.userMarker) {
+                    this.userMarker.setLatLng(latLng);
+                } else {
+                    this.userMarker = L.marker(latLng, { icon: this.userIcon }).addTo(this.map);
+                }
+                
+                // Update accuracy circle
+                if (this.accuracyCircle) {
+                    this.accuracyCircle.setLatLng(latLng);
+                    this.accuracyCircle.setRadius(point.accuracy);
+                } else {
+                    this.accuracyCircle = L.circle(latLng, {
+                        radius: point.accuracy,
+                        color: '#4F46E5',
+                        fillColor: '#4F46E5',
+                        fillOpacity: 0.1,
+                        weight: 1
+                    }).addTo(this.map);
+                }
+                
+                // Update track polyline
+                if (this.trackPoints.length > 1) {
+                    const latlngs = this.trackPoints.map(p => [p.lat, p.lng]);
+                    if (this.polyline) {
+                        this.polyline.setLatLngs(latlngs);
+                    } else {
+                        this.polyline = L.polyline(latlngs, {
+                            color: '#3B82F6',
+                            weight: 4,
+                            opacity: 0.7
+                        }).addTo(this.map);
+                    }
+                }
+                
+                // Center map on user
+                if (this.isTracking) {
+                    this.map.setView(latLng, this.map.getZoom());
+                }
+            }
+            
+            updateUI(point) {
+                // Update coordinates
+                document.getElementById('coordinates').textContent = 
+                    `${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}`;
+                
+                // Update accuracy
+                document.getElementById('accuracy').textContent = 
+                    `${Math.round(point.accuracy)} מ'`;
+                
+                // Update speed
+                const speedKmh = (point.speed || 0) * 3.6;
+                document.getElementById('speed').textContent = 
+                    `${speedKmh.toFixed(1)} קמ"ש`;
+                
+                // Update heading
+                if (point.heading !== null && point.heading !== undefined) {
+                    document.getElementById('heading').textContent = 
+                        `${Math.round(point.heading)}°`;
+                }
+                
+                // Update statistics
+                document.getElementById('distance').textContent = 
+                    this.totalDistance < 1000 ? 
+                    `${Math.round(this.totalDistance)} מ'` : 
+                    `${(this.totalDistance / 1000).toFixed(2)} ק"מ`;
+                
+                document.getElementById('pointCount').textContent = 
+                    this.trackPoints.length;
+                
+                // Update average speed
+                if (this.startTime && this.trackPoints.length > 0) {
+                    const duration = (Date.now() - this.startTime) / 1000 / 3600; // hours
+                    const avgSpeed = (this.totalDistance / 1000) / duration;
+                    document.getElementById('avgSpeed').textContent = 
+                        `${avgSpeed.toFixed(1)} קמ"ש`;
+                }
+            }
+            
+            updateDistance(point) {
+                if (this.trackPoints.length > 1) {
+                    const lastPoint = this.trackPoints[this.trackPoints.length - 2];
+                    const distance = this.calculateDistance(
+                        lastPoint.lat, lastPoint.lng,
+                        point.lat, point.lng
+                    );
+                    this.totalDistance += distance;
+                }
+            }
+            
+            calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371000; // Earth radius in meters
+                const φ1 = lat1 * Math.PI / 180;
+                const φ2 = lat2 * Math.PI / 180;
+                const Δφ = (lat2 - lat1) * Math.PI / 180;
+                const Δλ = (lon2 - lon1) * Math.PI / 180;
+                
+                const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                        Math.cos(φ1) * Math.cos(φ2) *
+                        Math.sin(Δλ/2) * Math.sin(Δλ/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                
+                return R * c;
+            }
+            
+            async reverseGeocode(point) {
+                try {
+                    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${point.lat}&lon=${point.lng}&zoom=18&addressdetails=1`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    if (data.display_name) {
+                        document.getElementById('currentAddress').textContent = data.display_name;
+                    }
+                } catch (error) {
+                    console.error('Geocoding error:', error);
+                }
+            }
+            
+            markEvent(type) {
+                if (!this.currentPosition) {
+                    alert('אין מיקום זמין');
+                    return;
+                }
+                
+                const event = {
+                    type: type,
+                    timestamp: Date.now(),
+                    position: { ...this.currentPosition },
+                    address: document.getElementById('currentAddress').textContent
+                };
+                
+                // Add marker to map
+                const icon = L.divIcon({
+                    html: `<div class="bg-${type === 'arrival' ? 'green' : 'red'}-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-${type === 'arrival' ? 'flag-checkered' : 'sign-out-alt'} text-sm"></i>
+                    </div>`,
+                    className: '',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+                
+                const marker = L.marker([event.position.lat, event.position.lng], { icon })
+                    .addTo(this.map)
+                    .bindPopup(`<b>${type === 'arrival' ? 'הגעה' : 'יציאה'}</b><br>${new Date(event.timestamp).toLocaleString('he-IL')}<br>${event.address}`);
+                
+                this.markers.push(marker);
+                
+                // Save event
+                if (!this.trackPoints.find(p => p.event)) {
+                    event.position.event = event;
+                }
+                
+                // Show notification
+                this.showNotification(`${type === 'arrival' ? 'הגעה' : 'יציאה'} נרשמה בהצלחה`);
+            }
+            
+            centerOnUser() {
+                if (this.currentPosition) {
+                    this.map.setView([this.currentPosition.lat, this.currentPosition.lng], 16);
+                } else {
+                    alert('אין מיקום זמין');
+                }
+            }
+            
+            updateTimer() {
+                if (this.isTracking && this.startTime) {
+                    const elapsed = Date.now() - this.startTime;
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    document.getElementById('duration').textContent = 
+                        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    
+                    requestAnimationFrame(() => this.updateTimer());
+                }
+            }
+            
+            updateStatus(type, message) {
+                const indicator = document.getElementById('statusIndicator');
+                const text = document.getElementById('statusText');
+                
+                text.textContent = message;
+                
+                switch(type) {
+                    case 'tracking':
+                        indicator.className = 'w-3 h-3 bg-green-500 rounded-full pulse-dot';
+                        break;
+                    case 'ready':
+                        indicator.className = 'w-3 h-3 bg-blue-500 rounded-full';
+                        break;
+                    case 'stopped':
+                        indicator.className = 'w-3 h-3 bg-orange-500 rounded-full';
+                        break;
+                    case 'error':
+                        indicator.className = 'w-3 h-3 bg-red-500 rounded-full';
+                        break;
+                    default:
+                        indicator.className = 'w-3 h-3 bg-gray-400 rounded-full';
+                }
+            }
+            
+            showNotification(message) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black text-white px-6 py-3 rounded-lg shadow-lg z-50 slide-up';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 2000);
+            }
+            
+            saveToStorage() {
+                const data = {
+                    trackPoints: this.trackPoints,
+                    totalDistance: this.totalDistance,
+                    startTime: this.startTime,
+                    savedAt: Date.now()
+                };
+                
+                localStorage.setItem('gpsTrackerData', JSON.stringify(data));
+                this.showNotification('נתונים נשמרו בהצלחה');
+            }
+            
+            loadFromStorage() {
+                const saved = localStorage.getItem('gpsTrackerData');
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        this.trackPoints = data.trackPoints || [];
+                        this.totalDistance = data.totalDistance || 0;
+                        
+                        // Redraw track on map
+                        if (this.trackPoints.length > 0) {
+                            this.trackPoints.forEach(point => this.updateMap(point));
+                            this.updateUI(this.trackPoints[this.trackPoints.length - 1]);
+                        }
+                        
+                        this.showNotification('נתונים נטענו מהזיכרון');
+                    } catch (error) {
+                        console.error('Error loading data:', error);
+                    }
+                }
+            }
+            
+            clearData() {
+                this.trackPoints = [];
+                this.totalDistance = 0;
+                this.startTime = null;
+                this.movementHistory = [];
+                
+                // Clear map
+                if (this.polyline) {
+                    this.map.removeLayer(this.polyline);
+                    this.polyline = null;
+                }
+                
+                this.markers.forEach(marker => this.map.removeLayer(marker));
+                this.markers = [];
+                
+                // Clear storage
+                localStorage.removeItem('gpsTrackerData');
+                
+                // Reset UI
+                document.getElementById('distance').textContent = '0 מ\'';
+                document.getElementById('duration').textContent = '00:00';
+                document.getElementById('avgSpeed').textContent = '0 קמ"ש';
+                document.getElementById('pointCount').textContent = '0';
+                
+                this.showNotification('כל הנתונים נמחקו');
+            }
+            
+            exportGPX() {
+                if (this.trackPoints.length === 0) {
+                    alert('אין נתונים לייצוא');
+                    return;
+                }
+                
+                let gpx = '<?xml version="1.0" encoding="UTF-8"?>\n';
+                gpx += '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">\n';
+                gpx += '  <trk>\n';
+                gpx += '    <name>GPS Track</name>\n';
+                gpx += '    <trkseg>\n';
+                
+                this.trackPoints.forEach(point => {
+                    gpx += `      <trkpt lat="${point.lat}" lon="${point.lng}">\n`;
+                    if (point.altitude) {
+                        gpx += `        <ele>${point.altitude}</ele>\n`;
+                    }
+                    gpx += `        <time>${new Date(point.timestamp).toISOString()}</time>\n`;
+                    gpx += '      </trkpt>\n';
+                });
+                
+                gpx += '    </trkseg>\n';
+                gpx += '  </trk>\n';
+                gpx += '</gpx>';
+                
+                this.downloadFile(gpx, 'track.gpx', 'application/gpx+xml');
+                document.getElementById('exportModal').classList.add('hidden');
+            }
+            
+            exportGeoJSON() {
+                if (this.trackPoints.length === 0) {
+                    alert('אין נתונים לייצוא');
+                    return;
+                }
+                
+                const geojson = {
+                    type: 'FeatureCollection',
+                    features: [
+                        {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: this.trackPoints.map(p => [p.lng, p.lat, p.altitude || 0])
+                            },
+                            properties: {
+                                name: 'GPS Track',
+                                distance: this.totalDistance,
+                                points: this.trackPoints.length,
+                                startTime: this.startTime,
+                                endTime: Date.now()
+                            }
+                        }
+                    ]
+                };
+                
+                // Add event markers
+                this.trackPoints.forEach(point => {
+                    if (point.event) {
+                        geojson.features.push({
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [point.lng, point.lat]
+                            },
+                            properties: point.event
+                        });
+                    }
+                });
+                
+                const json = JSON.stringify(geojson, null, 2);
+                this.downloadFile(json, 'track.geojson', 'application/json');
+                document.getElementById('exportModal').classList.add('hidden');
+            }
+            
+            exportCSV() {
+                if (this.trackPoints.length === 0) {
+                    alert('אין נתונים לייצוא');
+                    return;
+                }
+                
+                let csv = 'Timestamp,Latitude,Longitude,Accuracy,Speed,Heading,Altitude\n';
+                
+                this.trackPoints.forEach(point => {
+                    csv += `${new Date(point.timestamp).toISOString()},`;
+                    csv += `${point.lat},${point.lng},`;
+                    csv += `${point.accuracy},${point.speed || 0},`;
+                    csv += `${point.heading || ''},${point.altitude || ''}\n`;
+                });
+                
+                this.downloadFile(csv, 'track.csv', 'text/csv');
+                document.getElementById('exportModal').classList.add('hidden');
+            }
+            
+            async shareData() {
+                if (!navigator.share) {
+                    alert('השיתוף לא נתמך במכשיר זה');
+                    return;
+                }
+                
+                try {
+                    const geojson = {
+                        type: 'FeatureCollection',
+                        features: [{
+                            type: 'Feature',
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: this.trackPoints.map(p => [p.lng, p.lat])
+                            }
+                        }]
+                    };
+                    
+                    const file = new File([JSON.stringify(geojson)], 'track.geojson', { type: 'application/json' });
+                    
+                    await navigator.share({
+                        title: 'מסלול GPS',
+                        text: `מסלול של ${(this.totalDistance / 1000).toFixed(2)} ק"מ`,
+                        files: [file]
+                    });
+                    
+                    document.getElementById('exportModal').classList.add('hidden');
+                } catch (error) {
+                    console.error('Share failed:', error);
+                }
+            }
+            
+            downloadFile(content, filename, type) {
+                const blob = new Blob([content], { type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+        
+        // Kalman Filter for GPS smoothing
+        class KalmanFilter {
+            constructor() {
+                this.Q = 3; // Process noise
+                this.R = 3; // Measurement noise
+                this.P = [[0, 0], [0, 0]]; // Error covariance
+                this.K = [0, 0]; // Kalman gain
+                this.X = [0, 0]; // State estimate
+                this.initialized = false;
+            }
+            
+            filter(lat, lng) {
+                if (!this.initialized) {
+                    this.X = [lat, lng];
+                    this.initialized = true;
+                    return { lat, lng };
+                }
+                
+                // Prediction
+                const P_pred = [[this.P[0][0] + this.Q, 0], [0, this.P[1][1] + this.Q]];
+                
+                // Measurement update
+                this.K[0] = P_pred[0][0] / (P_pred[0][0] + this.R);
+                this.K[1] = P_pred[1][1] / (P_pred[1][1] + this.R);
+                
+                this.X[0] = this.X[0] + this.K[0] * (lat - this.X[0]);
+                this.X[1] = this.X[1] + this.K[1] * (lng - this.X[1]);
+                
+                this.P[0][0] = (1 - this.K[0]) * P_pred[0][0];
+                this.P[1][1] = (1 - this.K[1]) * P_pred[1][1];
+                
+                return {
+                    lat: this.X[0],
+                    lng: this.X[1]
+                };
+            }
+        }
+        
+        // Initialize app
+        const tracker = new GPSTracker();
+    </script>
+</body>
+</html>
